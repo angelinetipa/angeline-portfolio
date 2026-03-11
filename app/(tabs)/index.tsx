@@ -1,350 +1,382 @@
 import React, { useEffect, useRef } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Animated,
-  Dimensions,
-  TouchableOpacity,
-  Linking,
-  Platform,
-  ImageBackground,
+  View, Text, StyleSheet, ScrollView, Animated,
+  Dimensions, TouchableOpacity, Linking, BackHandler,
+  Platform, Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { theme } from '../../constants/theme';
 import { profile } from '../../constants/data';
-import { ClayCard } from '../../components/ClayCard';
 
 const { width, height } = Dimensions.get('window');
-const isWeb = Platform.OS === 'web';
 
-const quickLinks = [
-  { label: 'About', icon: 'person-outline' as const, route: '/about' },
-  { label: 'Projects', icon: 'code-slash-outline' as const, route: '/projects' },
-  { label: 'Skills', icon: 'flash-outline' as const, route: '/skills' },
-  { label: 'Art', icon: 'color-palette-outline' as const, route: '/art' },
-  { label: 'Certs', icon: 'ribbon-outline' as const, route: '/certifications' },
-  { label: 'Checklist', icon: 'checkbox-outline' as const, route: '/checklist' },
-];
-
-export default function HomeScreen() {
-  const router = useRouter();
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(30)).current;
-
+// ─── Animated data node (floating dot)
+function DataNode({ x, y, size, color, duration, delay }: {
+  x: number; y: number; size: number; color: string; duration: number; delay: number;
+}) {
+  const anim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 700, useNativeDriver: true }),
-    ]).start();
+    Animated.loop(
+      Animated.sequence([
+        Animated.delay(delay),
+        Animated.timing(anim, { toValue: 1, duration, useNativeDriver: true }),
+        Animated.timing(anim, { toValue: 0, duration, useNativeDriver: true }),
+      ])
+    ).start();
   }, []);
-
+  const translateY = anim.interpolate({ inputRange: [0, 1], outputRange: [0, -14] });
+  const opacity    = anim.interpolate({ inputRange: [0, 0.3, 0.7, 1], outputRange: [0.3, 0.7, 0.7, 0.3] });
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      {/* Hero Section */}
-      <View style={styles.heroSection}>
-        {/* Background blobs */}
-        <View style={styles.blobGreen} />
-        <View style={styles.blobBlue} />
-
-        {/* Photo */}
-        <Animated.View style={[styles.photoContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-          <View style={styles.photoFrame}>
-            {/* TODO: Replace with actual image:
-                <Image source={require('../../assets/hero.jpg')} style={styles.photo} />
-            */}
-            <LinearGradient
-              colors={[theme.colors.primaryLight, theme.colors.accent]}
-              style={styles.photoPlaceholder}
-            >
-              <Text style={styles.photoInitial}>A</Text>
-            </LinearGradient>
-          </View>
-          {/* Floating badge */}
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>👩‍💻 Open to Work</Text>
-          </View>
-        </Animated.View>
-
-        {/* Name & tagline */}
-        <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-          <Text style={styles.greeting}>Hi, I'm</Text>
-          <Text style={styles.name}>Angeline ✦</Text>
-          <Text style={styles.tagline}>{profile.tagline}</Text>
-          <View style={styles.schoolRow}>
-            <Ionicons name="school-outline" size={14} color={theme.colors.textSub} />
-            <Text style={styles.school}>{profile.school}</Text>
-          </View>
-        </Animated.View>
-
-        {/* CTA Buttons */}
-        <Animated.View style={[styles.ctaRow, { opacity: fadeAnim }]}>
-          <TouchableOpacity
-            style={styles.btnPrimary}
-            onPress={() => router.push('/projects')}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.btnPrimaryText}>See My Work</Text>
-            <Ionicons name="arrow-forward" size={16} color={theme.colors.white} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.btnSecondary}
-            onPress={() => Linking.openURL(profile.github)}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="logo-github" size={18} color={theme.colors.primary} />
-            <Text style={styles.btnSecondaryText}>GitHub</Text>
-          </TouchableOpacity>
-        </Animated.View>
-      </View>
-
-      {/* Quick Nav Grid */}
-      <View style={styles.section}>
-        <Text style={styles.sectionLabel}>Explore</Text>
-        <View style={styles.grid}>
-          {quickLinks.map((link, i) => (
-            <TouchableOpacity
-              key={link.label}
-              style={styles.gridItem}
-              onPress={() => router.push(link.route as any)}
-              activeOpacity={0.8}
-            >
-              <ClayCard variant={i % 2 === 0 ? 'green' : 'sky'} style={styles.gridCard}>
-                <Ionicons name={link.icon} size={26} color={theme.colors.primary} />
-                <Text style={styles.gridLabel}>{link.label}</Text>
-              </ClayCard>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-
-      {/* Tagline card */}
-      <View style={[styles.section, { paddingBottom: 40 }]}>
-        <ClayCard variant="green" elevated style={styles.quoteCard}>
-          <Text style={styles.quoteText}>
-            "Soon-to-graduate, already building. Big data, mobile apps, and a little bit of art — that's me."
-          </Text>
-          <Text style={styles.quoteName}>— {profile.nickname}</Text>
-        </ClayCard>
-      </View>
-    </ScrollView>
+    <Animated.View style={{
+      position: 'absolute', left: x, top: y,
+      width: size, height: size, borderRadius: size / 2,
+      backgroundColor: color, opacity,
+      transform: [{ translateY }],
+      shadowColor: color, shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.9, shadowRadius: size,
+    }} />
   );
 }
 
+// ─── Animated connection line between two nodes
+function DataLine({ x1, y1, x2, y2, delay }: { x1:number; y1:number; x2:number; y2:number; delay:number }) {
+  const anim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.delay(delay),
+        Animated.timing(anim, { toValue: 1, duration: 2400, useNativeDriver: true }),
+        Animated.timing(anim, { toValue: 0, duration: 2400, useNativeDriver: true }),
+      ])
+    ).start();
+  }, []);
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.sqrt(dx * dx + dy * dy);
+  const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+  const opacity = anim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.05, 0.25, 0.05] });
+  return (
+    <Animated.View style={{
+      position: 'absolute', left: x1, top: y1,
+      width: len, height: 1,
+      backgroundColor: theme.colors.accent,
+      opacity,
+      transform: [{ rotate: `${angle}deg` }, { translateX: len / 2 - len / 2 }],
+      transformOrigin: '0% 50%',
+    }} />
+  );
+}
+
+const nodes = [
+  { x: 30,      y: 60,        size: 8,  color: theme.colors.accent,    duration: 3000, delay: 0    },
+  { x: width-50,y: 90,        size: 6,  color: theme.colors.primary,   duration: 3600, delay: 600  },
+  { x: 60,      y: 260,       size: 5,  color: theme.colors.dataTeal,  duration: 2800, delay: 1200 },
+  { x: width-70,y: 280,       size: 9,  color: theme.colors.accent,    duration: 4000, delay: 300  },
+  { x: width/2-40, y: 40,     size: 5,  color: theme.colors.dataSky,   duration: 3200, delay: 900  },
+  { x: width/2+60, y: 310,    size: 6,  color: theme.colors.primary,   duration: 2600, delay: 1500 },
+];
+
+const lines = [
+  { x1: 38, y1: 64, x2: width-44, y2: 93 },
+  { x1: 65, y1: 263, x2: width/2-37, y2: 44 },
+  { x1: width-64, y1: 284, x2: width/2+63, y2: 313 },
+];
+
+const quickLinks = [
+  { label: 'About',    icon: 'person'         as const, route: '/about',    grad: theme.gradients.primary },
+  { label: 'Projects', icon: 'code-slash'     as const, route: '/projects', grad: theme.gradients.accent  },
+  { label: 'Creative', icon: 'color-palette'  as const, route: '/creative', grad: theme.gradients.primary },
+  { label: 'Connect',  icon: 'paper-plane'    as const, route: '/connect',  grad: theme.gradients.accent  },
+];
+
+// ─── Floating Exit Button
+function FloatingExit() {
+  const lastBack = useRef(0);
+  const scale = useRef(new Animated.Value(1)).current;
+
+  const onPress = () => {
+    Animated.sequence([
+      Animated.timing(scale, { toValue: 0.85, duration: 80, useNativeDriver: true }),
+      Animated.spring(scale,  { toValue: 1, tension: 200, friction: 6, useNativeDriver: true }),
+    ]).start();
+    if (Platform.OS === 'android') {
+      const now = Date.now();
+      if (now - lastBack.current < 2000) { BackHandler.exitApp(); return; }
+      lastBack.current = now;
+      Alert.alert('', 'Press again to exit', [{ text: 'OK' }], { cancelable: true });
+    } else {
+      Alert.alert('Exit', 'Close the app from your home screen.', [{ text: 'OK' }]);
+    }
+  };
+
+  return (
+    <Animated.View style={[fab.wrap, { transform: [{ scale }] }]}>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.85}>
+        <LinearGradient colors={['#5c5c6e', '#2e2e3a']} style={fab.btn}>
+          <Ionicons name="power-outline" size={20} color={theme.colors.white} />
+        </LinearGradient>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+}
+
+const fab = StyleSheet.create({
+  wrap: {
+    position: 'absolute', bottom: 96, right: 20, zIndex: 50,
+    shadowColor: '#2e2e3a', shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.45, shadowRadius: 14, elevation: 12,
+  },
+  btn: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
+});
+
+// ─── Main Screen
+export default function HomeScreen() {
+  const router   = useRouter();
+  const fade     = useRef(new Animated.Value(0)).current;
+  const slideY   = useRef(new Animated.Value(36)).current;
+  const photoSc  = useRef(new Animated.Value(0.78)).current;
+  const badgeBob = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fade,   { toValue: 1, duration: 700, useNativeDriver: true }),
+      Animated.spring(slideY, { toValue: 0, tension: 50, friction: 9, useNativeDriver: true }),
+      Animated.spring(photoSc,{ toValue: 1, tension: 45, friction: 8, useNativeDriver: true }),
+    ]).start(() => {
+      Animated.loop(Animated.sequence([
+        Animated.timing(badgeBob, { toValue: -5, duration: 1400, useNativeDriver: true }),
+        Animated.timing(badgeBob, { toValue:  0, duration: 1400, useNativeDriver: true }),
+      ])).start();
+    });
+  }, []);
+
+  return (
+    <View style={{ flex: 1 }}>
+      {/* Full-screen seamless gradient background */}
+      <LinearGradient
+        colors={['#E8F4EC', '#EBF4FB', '#E4EEF8', '#ECF5F0']}
+        locations={[0, 0.35, 0.65, 1]}
+        style={StyleSheet.absoluteFillObject}
+      />
+
+      {/* Animated data network */}
+      {lines.map((l, i) => <DataLine key={i} {...l} delay={i * 400} />)}
+      {nodes.map((n, i) => <DataNode key={i} {...n} />)}
+
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* ── PHOTO ── */}
+        <Animated.View style={[styles.photoWrap, { transform: [{ scale: photoSc }] }]}>
+          <View style={styles.glowRing} />
+          <LinearGradient colors={theme.gradients.primary} style={styles.photo}>
+            <Text style={styles.photoLetter}>A</Text>
+            {/* TODO: replace with:
+            <Image source={require('../../assets/hero.jpg')} style={styles.photoImg} /> */}
+          </LinearGradient>
+
+          <Animated.View style={[styles.badge, { transform: [{ translateY: badgeBob }] }]}>
+            <Ionicons name="briefcase-outline" size={11} color={theme.colors.primary} />
+            <Text style={styles.badgeText}>Open to Work</Text>
+          </Animated.View>
+
+          <View style={styles.dataBadge}>
+            <Ionicons name="analytics" size={11} color={theme.colors.accent} />
+            <Text style={styles.dataBadgeText}>Big Data</Text>
+          </View>
+        </Animated.View>
+
+        {/* ── NAME + TAGLINE ── */}
+        <Animated.View style={[styles.textBlock, { opacity: fade, transform: [{ translateY: slideY }] }]}>
+          <Text style={styles.hi}>Hello, I'm</Text>
+          <Text style={styles.name}>Angeline<Text style={{ color: theme.colors.accent }}> ✦</Text></Text>
+          <Text style={styles.tagline}>{profile.tagline}</Text>
+          <View style={styles.schoolRow}>
+            <Ionicons name="school-outline" size={12} color={theme.colors.textMuted} />
+            <Text style={styles.school}>PUP Sta. Mesa · BS CompE (Big Data)</Text>
+          </View>
+        </Animated.View>
+
+        {/* ── CTA ── */}
+        <Animated.View style={[styles.ctaRow, { opacity: fade }]}>
+          <TouchableOpacity onPress={() => router.push('/projects')} activeOpacity={0.85}>
+            <LinearGradient colors={theme.gradients.primary} style={styles.btnPrimary}>
+              <Text style={styles.btnPrimaryText}>See My Work</Text>
+              <Ionicons name="arrow-forward" size={15} color={theme.colors.white} />
+            </LinearGradient>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.btnSecondary} onPress={() => Linking.openURL(profile.github)} activeOpacity={0.85}>
+            <Ionicons name="logo-github" size={17} color={theme.colors.primary} />
+            <Text style={styles.btnSecondaryText}>GitHub</Text>
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* ── EXPLORE ── */}
+        <Animated.View style={[styles.exploreBlock, { opacity: fade }]}>
+          <Text style={styles.exploreLabel}>EXPLORE</Text>
+          <View style={styles.grid}>
+            {quickLinks.map((link) => (
+              <TouchableOpacity
+                key={link.label}
+                style={styles.gridItem}
+                onPress={() => router.push(link.route as any)}
+                activeOpacity={0.82}
+              >
+                {/* Single gradient surface — no nested boxes */}
+                <LinearGradient
+                  colors={['rgba(255,255,255,0.82)', 'rgba(240,248,252,0.75)']}
+                  style={styles.gridCard}
+                >
+                  <LinearGradient colors={link.grad} style={styles.gridIconCircle}>
+                    <Ionicons name={link.icon} size={20} color={theme.colors.white} />
+                  </LinearGradient>
+                  <Text style={styles.gridLabel}>{link.label}</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </Animated.View>
+
+        {/* ── QUOTE ── */}
+        <Animated.View style={[styles.quoteWrap, { opacity: fade }]}>
+          <LinearGradient
+            colors={['rgba(255,255,255,0.75)', 'rgba(235,244,251,0.65)']}
+            style={styles.quoteCard}
+          >
+            <Ionicons name="analytics-outline" size={22} color={theme.colors.accent} style={{ marginBottom: 6 }} />
+            <Text style={styles.quoteText}>
+              "Soon-to-graduate, already building. Big data, mobile apps, and a little bit of art — that's me."
+            </Text>
+            <Text style={styles.quoteAuthor}>— Angeline</Text>
+          </LinearGradient>
+        </Animated.View>
+      </ScrollView>
+
+      <FloatingExit />
+    </View>
+  );
+}
+
+const GRID_GAP = 10;
+const ITEM_W   = (width - theme.spacing.lg * 2 - GRID_GAP) / 2;
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.bg,
-  },
   content: {
-    flexGrow: 1,
-  },
-  heroSection: {
-    minHeight: isWeb ? 600 : height * 0.75,
+    paddingTop: 68,
+    paddingBottom: 100,
     paddingHorizontal: theme.spacing.lg,
-    paddingTop: 60,
-    paddingBottom: theme.spacing.xl,
     alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-    overflow: 'hidden',
+    gap: 18,
   },
-  // Background blobs for organic feel
-  blobGreen: {
-    position: 'absolute',
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    backgroundColor: 'rgba(143, 184, 154, 0.25)',
-    top: -60,
-    right: -80,
-  },
-  blobBlue: {
-    position: 'absolute',
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: 'rgba(114, 180, 220, 0.18)',
-    bottom: 20,
-    left: -60,
-  },
-  photoContainer: {
-    alignItems: 'center',
-    marginBottom: theme.spacing.lg,
-  },
-  photoFrame: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    borderWidth: 4,
-    borderColor: theme.colors.white,
-    shadowColor: theme.colors.shadow,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 1,
-    shadowRadius: 24,
-    elevation: 12,
-    overflow: 'hidden',
+
+  // Photo
+  photoWrap: { alignItems: 'center', position: 'relative', marginBottom: 4 },
+  glowRing: {
+    position: 'absolute', width: 178, height: 178, borderRadius: 89,
+    top: -9, left: -9,
+    backgroundColor: theme.colors.primaryGlow,
+    shadowColor: theme.colors.primary, shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5, shadowRadius: 28,
   },
   photo: {
-    width: '100%',
-    height: '100%',
+    width: 160, height: 160, borderRadius: 80,
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 3, borderColor: theme.colors.white,
+    shadowColor: theme.colors.primary, shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35, shadowRadius: 18, elevation: 10,
   },
-  photoPlaceholder: {
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  photoInitial: {
-    fontSize: 64,
-    fontWeight: '700',
-    color: theme.colors.white,
-  },
+  photoLetter: { fontSize: 54, fontWeight: '800', color: theme.colors.white },
+  photoImg: { width: 160, height: 160, borderRadius: 80 },
   badge: {
-    position: 'absolute',
-    bottom: -8,
+    position: 'absolute', bottom: -6,
+    flexDirection: 'row', alignItems: 'center', gap: 5,
     backgroundColor: theme.colors.white,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: theme.radius.full,
-    shadowColor: theme.colors.shadow,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 1,
-    shadowRadius: 8,
-    elevation: 4,
+    paddingHorizontal: 11, paddingVertical: 5, borderRadius: theme.radius.full,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.12, shadowRadius: 8, elevation: 4,
   },
-  badgeText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: theme.colors.primary,
+  badgeText: { fontSize: 11, fontWeight: '700', color: theme.colors.primary },
+  dataBadge: {
+    position: 'absolute', top: 0, right: -14,
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: theme.colors.white,
+    paddingHorizontal: 9, paddingVertical: 4, borderRadius: theme.radius.full,
+    borderWidth: 1.5, borderColor: theme.colors.accentLight,
+    shadowColor: theme.colors.accent, shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2, shadowRadius: 6, elevation: 3,
   },
-  greeting: {
-    textAlign: 'center',
-    fontSize: 18,
-    color: theme.colors.textSub,
-    marginTop: 8,
-    letterSpacing: 0.5,
-  },
-  name: {
-    textAlign: 'center',
-    fontSize: 42,
-    fontWeight: '800',
-    color: theme.colors.text,
-    letterSpacing: -1,
-    marginBottom: 8,
-  },
-  tagline: {
-    textAlign: 'center',
-    fontSize: 15,
-    color: theme.colors.textSub,
-    lineHeight: 22,
-    maxWidth: 300,
-    alignSelf: 'center',
-    marginBottom: 10,
-  },
-  schoolRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    justifyContent: 'center',
-    marginBottom: theme.spacing.lg,
-  },
-  school: {
-    fontSize: 13,
-    color: theme.colors.textMuted,
-    flexShrink: 1,
-    maxWidth: 260,
-  },
-  ctaRow: {
-    flexDirection: 'row',
-    gap: 12,
-    alignItems: 'center',
-  },
+  dataBadgeText: { fontSize: 10, fontWeight: '700', color: theme.colors.accent },
+
+  // Text
+  textBlock: { alignItems: 'center', gap: 3 },
+  hi: { fontSize: 15, color: theme.colors.textSub, letterSpacing: 0.3 },
+  name: { fontSize: 42, fontWeight: '800', color: theme.colors.text, letterSpacing: -1.5, lineHeight: 50 },
+  tagline: { fontSize: 13, color: theme.colors.textSub, textAlign: 'center', maxWidth: 270, lineHeight: 20, marginTop: 2 },
+  schoolRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 2 },
+  school: { fontSize: 12, color: theme.colors.textMuted },
+
+  // Buttons
+  ctaRow: { flexDirection: 'row', gap: 10, alignItems: 'center' },
   btnPrimary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: theme.colors.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 14,
-    borderRadius: theme.radius.full,
-    shadowColor: theme.colors.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 14,
-    elevation: 6,
+    flexDirection: 'row', alignItems: 'center', gap: 7,
+    paddingHorizontal: 24, paddingVertical: 13, borderRadius: theme.radius.full,
+    shadowColor: theme.colors.primary, shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.45, shadowRadius: 14, elevation: 7,
   },
-  btnPrimaryText: {
-    color: theme.colors.white,
-    fontWeight: '700',
-    fontSize: 15,
-  },
+  btnPrimaryText: { color: theme.colors.white, fontWeight: '700', fontSize: 14 },
   btnSecondary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: theme.colors.white,
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderRadius: theme.radius.full,
-    borderWidth: 1.5,
-    borderColor: theme.colors.primaryLight,
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: 'rgba(255,255,255,0.88)',
+    paddingHorizontal: 18, paddingVertical: 13, borderRadius: theme.radius.full,
+    borderWidth: 1.5, borderColor: theme.colors.primaryLight,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08, shadowRadius: 6, elevation: 2,
   },
-  btnSecondaryText: {
-    color: theme.colors.primary,
-    fontWeight: '600',
-    fontSize: 15,
+  btnSecondaryText: { color: theme.colors.primary, fontWeight: '700', fontSize: 14 },
+
+  // Explore grid
+  exploreBlock: { width: '100%', gap: 12 },
+  exploreLabel: {
+    fontSize: 11, fontWeight: '700', letterSpacing: 2.5,
+    color: theme.colors.textMuted, textTransform: 'uppercase', textAlign: 'center',
   },
-  section: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.lg,
-  },
-  sectionLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: theme.colors.textMuted,
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    marginBottom: 16,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: GRID_GAP, justifyContent: 'center' },
   gridItem: {
-    width: (width - theme.spacing.lg * 2 - 12 * 2) / 3,
-    minWidth: isWeb ? 100 : undefined,
+    width: ITEM_W,
+    borderRadius: theme.radius.lg,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.8)',
+    shadowColor: theme.colors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 12,
+    elevation: 5,
   },
   gridCard: {
-    alignItems: 'center',
-    gap: 8,
-    paddingVertical: 18,
+    alignItems: 'center', justifyContent: 'center',
+    paddingVertical: 20, gap: 10,
   },
-  gridLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: theme.colors.textSub,
-    textAlign: 'center',
+  gridIconCircle: {
+    width: 44, height: 44, borderRadius: 14,
+    alignItems: 'center', justifyContent: 'center',
+    shadowColor: theme.colors.primary, shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
   },
+  gridLabel: { fontSize: 13, fontWeight: '700', color: theme.colors.textSub },
+
+  // Quote
+  quoteWrap: { width: '100%' },
   quoteCard: {
-    marginTop: 8,
-    paddingVertical: 28,
+    borderRadius: theme.radius.lg, padding: 22,
+    borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.75)',
+    shadowColor: theme.colors.shadowBlue,
+    shadowOffset: { width: 0, height: 4 }, shadowOpacity: 1, shadowRadius: 14, elevation: 4,
+    gap: 2,
   },
-  quoteText: {
-    fontSize: 15,
-    fontStyle: 'italic',
-    color: theme.colors.text,
-    lineHeight: 24,
-    marginBottom: 12,
-  },
-  quoteName: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: theme.colors.primary,
-    textAlign: 'right',
-  },
+  quoteText: { fontSize: 14, fontStyle: 'italic', color: theme.colors.text, lineHeight: 22 },
+  quoteAuthor: { fontSize: 12, fontWeight: '700', color: theme.colors.accent, textAlign: 'right', marginTop: 8 },
 });

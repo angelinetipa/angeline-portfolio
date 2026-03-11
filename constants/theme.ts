@@ -1,37 +1,43 @@
 export const theme = {
   colors: {
-    // Pulled from photos: sky blue shirt, lush green trees, stone arch, bright sky
-    bg: '#ECF4EE',           // light mint — breathable background
-    bgAlt: '#EEF6FB',        // pale sky blue — alternate sections
+    bg: '#EDF5F0',
+    bgAlt: '#EBF4FB',
     surface: '#FFFFFF',
-    primary: '#4F8F68',      // deep forest green
-    primaryLight: '#87B89A', // sage green
-    accent: '#72B4DC',       // open sky blue
-    accentLight: '#B6D9F2',  // pale sky
-    stone: '#C1AE98',        // warm stone/pebble
-    stoneLight: '#F2EDE7',   // cream
-    text: '#1A3626',         // dark forest
-    textSub: '#3D6650',      // medium green
-    textMuted: '#7A9A86',    // muted green
+    primary: '#3D7A5A',
+    primaryLight: '#6BA583',
+    primaryGlow: 'rgba(61,122,90,0.35)',
+    accent: '#4DA6D8',
+    accentLight: '#85C4E8',
+    accentGlow: 'rgba(77,166,216,0.35)',
+    accentDeep: '#2A7FAF',
+    dataBlue: '#1A5F8A',
+    dataTeal: '#2A9D8F',
+    dataSky: '#56B4D3',
+    stone: '#B8A898',
+    stoneLight: '#F0EAE2',
+    text: '#162820',
+    textSub: '#2E5A42',
+    textMuted: '#6B9078',
     white: '#FFFFFF',
-    clay: 'rgba(79, 143, 104, 0.12)',   // green clay tint
-    claySky: 'rgba(114, 180, 220, 0.14)', // blue clay tint
-    shadow: 'rgba(60, 100, 78, 0.18)',
-    shadowStrong: 'rgba(60, 100, 78, 0.28)',
+    clay: 'rgba(61,122,90,0.10)',
+    claySky: 'rgba(77,166,216,0.12)',
+    clayDeep: 'rgba(26,95,138,0.10)',
+    shadow: 'rgba(40,80,60,0.20)',
+    shadowBlue: 'rgba(40,90,140,0.18)',
+  },
+  gradients: {
+    primary: ['#6BA583', '#3D7A5A'] as [string, string],
+    accent: ['#56B4D3', '#2A7FAF'] as [string, string],
+    hero: ['#EDF5F0', '#E8F2FA'] as [string, string],
+    data: ['#1A5F8A', '#2A9D8F'] as [string, string],
+    card: ['rgba(255,255,255,0.95)', 'rgba(240,248,244,0.90)'] as [string, string],
+    headerGreen: ['#EDF5F0', '#E4F0EA'] as [string, string],
+    headerBlue: ['#EBF4FB', '#E2EEF8'] as [string, string],
   },
   radius: {
-    sm: 14,
-    md: 22,
-    lg: 30,
-    xl: 40,
-    full: 999,
+    sm: 14, md: 22, lg: 28, xl: 36, full: 999,
   },
   spacing: {
-    xs: 6,
-    sm: 12,
-    md: 20,
-    lg: 32,
-    xl: 48,
-    xxl: 64,
+    xs: 6, sm: 12, md: 20, lg: 28, xl: 48,
   },
 };
