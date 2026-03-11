@@ -1,35 +1,105 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { theme } from '../../constants/theme';
+import { Platform, StyleSheet, View } from 'react-native';
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+function TabIcon({ name, focused }: { name: IconName; focused: boolean }) {
+  return (
+    <View style={[styles.iconWrap, focused && styles.iconActive]}>
+      <Ionicons
+        name={name}
+        size={22}
+        color={focused ? theme.colors.primary : theme.colors.textMuted}
+      />
+    </View>
+  );
+}
 
+export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+        tabBarStyle: styles.tabBar,
+        tabBarShowLabel: false,
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'home' : 'home-outline'} focused={focused} />,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="about"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'person' : 'person-outline'} focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="projects"
+        options={{
+          tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'code-slash' : 'code-slash-outline'} focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="skills"
+        options={{
+          tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'flash' : 'flash-outline'} focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="art"
+        options={{
+          tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'color-palette' : 'color-palette-outline'} focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="certifications"
+        options={{
+          tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'ribbon' : 'ribbon-outline'} focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="checklist"
+        options={{
+          tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'checkbox' : 'checkbox-outline'} focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="contact"
+        options={{
+          tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'mail' : 'mail-outline'} focused={focused} />,
         }}
       />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    backgroundColor: theme.colors.white,
+    borderTopWidth: 0,
+    elevation: 20,
+    shadowColor: theme.colors.shadow,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 1,
+    shadowRadius: 20,
+    height: Platform.OS === 'ios' ? 84 : 64,
+    paddingBottom: Platform.OS === 'ios' ? 20 : 8,
+    paddingTop: 8,
+    borderRadius: 0,
+  },
+  iconWrap: {
+    width: 40,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: theme.radius.md,
+  },
+  iconActive: {
+    backgroundColor: theme.colors.clay,
+  },
+});

@@ -1,53 +1,37 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
-
-import { Platform } from 'react-native';
-
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
-
-export const Colors = {
-  light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
+export const theme = {
+  colors: {
+    // Pulled from photos: sky blue shirt, lush green trees, stone arch, bright sky
+    bg: '#ECF4EE',           // light mint — breathable background
+    bgAlt: '#EEF6FB',        // pale sky blue — alternate sections
+    surface: '#FFFFFF',
+    primary: '#4F8F68',      // deep forest green
+    primaryLight: '#87B89A', // sage green
+    accent: '#72B4DC',       // open sky blue
+    accentLight: '#B6D9F2',  // pale sky
+    stone: '#C1AE98',        // warm stone/pebble
+    stoneLight: '#F2EDE7',   // cream
+    text: '#1A3626',         // dark forest
+    textSub: '#3D6650',      // medium green
+    textMuted: '#7A9A86',    // muted green
+    white: '#FFFFFF',
+    clay: 'rgba(79, 143, 104, 0.12)',   // green clay tint
+    claySky: 'rgba(114, 180, 220, 0.14)', // blue clay tint
+    shadow: 'rgba(60, 100, 78, 0.18)',
+    shadowStrong: 'rgba(60, 100, 78, 0.28)',
   },
-  dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
+  radius: {
+    sm: 14,
+    md: 22,
+    lg: 30,
+    xl: 40,
+    full: 999,
+  },
+  spacing: {
+    xs: 6,
+    sm: 12,
+    md: 20,
+    lg: 32,
+    xl: 48,
+    xxl: 64,
   },
 };
-
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
-    mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-  },
-});
